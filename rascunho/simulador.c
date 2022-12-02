@@ -9,7 +9,8 @@ int main(int argc, char * argv[])
   int n_written = 0;
   int n_page_faults = 0;
   int index_to_overwrite;
-  Page *pages;
+  Page_opt *pages;
+  Page_opt *previsao;
   int pages_current_size = 0;
   int *page_ids;
   int time = 0;
@@ -43,11 +44,10 @@ int main(int argc, char * argv[])
     exit(4);
   }
   
-  page_size = atoi(argv[3]);
-  mem_size = atoi(argv[4]);
-  
+  page_size = atoi(argv[2]);
+  mem_size = atoi(argv[3]);
   n_pages = (mem_size * 1000)/ page_size;
-  pages = (Page *) malloc(sizeof(Page) * pow(2, 32 - (int)(ceil(log2(page_size*1000)))));
+  pages = (Page_opt *) malloc(sizeof(Page_opt) * pow(2, 32 - (int)(ceil(log2(page_size*1000)))));
   page_ids = (int *) malloc(sizeof(int) * n_pages);
   
   if (pages == NULL)
@@ -56,41 +56,45 @@ int main(int argc, char * argv[])
     exit(5);
   }
 
-  printf("Executando simulador...\n");
-  while(fscanf(arq, "%x %c ", &addr, &rw) == 2)
-  {
-      page_id = addr >> (int)(ceil(log2(page_size * 1000)));
+  previsao = (Page_opt *) malloc(sizeof(Page_opt) * 1000000);
+  
+  ler_futuro(arq, page_size, previsao);
+  
+  // printf("Executando simulador...\n");
+  // while(fscanf(arq, "%x %c ", &addr, &rw) == 2)
+  // {
+  //     page_id = addr >> (int)(ceil(log2(page_size * 1000)));
     
-      if(!is_in_Pages(pages,page_id,pages_current_size))
-      {  
-        if(pages_current_size >= n_pages)
-        {
-          // ######Chamada pode estar errada, verificar dps#######
-          index_to_overwrite = opt(pages,page_id,n_pages);
-          set_page(pages,index_to_overwrite,page_id,time, rw);
-          page_ids[pages_current_size] = index_to_overwrite;
+  //     if(!is_in_Pages(pages,page_id,pages_current_size))
+  //     { 
+  //       if(pages_current_size >= n_pages)
+  //       {
+  //         // ######Chamada pode estar errada, verificar dps#######
+  //         index_to_overwrite = opt(pages,page_id,n_pages);
+  //         set_page(pages,index_to_overwrite,page_id,time, rw);
+  //         page_ids[pages_current_size] = index_to_overwrite;
           
-          n_written++;
-      	} 
-      	else 
-      	{
-        	set_page(pages,pages_current_size,page_id,time, rw);
-        	page_ids[pages_current_size] = page_id;
-        	pages_current_size++;
-      	}
+  //         n_written++;
+  //     	} 
+  //     	else 
+  //     	{
+  //       	set_page(pages,pages_current_size,page_id,time, rw);
+  //       	page_ids[pages_current_size] = page_id;
+  //       	pages_current_size++;
+  //     	}
         
-     	n_page_faults++;
-     }
+  //    	n_page_faults++;
+  //    }
 
-    time++;
-  }
+  //   time++;
+  // }
 
-  printf("Arquivo de entrada: %s\n", argv[2]);
-  printf("Tamanho da memoria fisica: %s MB\n", argv[4]);
-  printf("Tamanho das paginas: %s KB\n", argv[3]);
-  printf("Algoritmo de substituicao: %s \n", argv[1]);
-  printf("Numero de page faults: %d \n",n_page_faults);
-  printf("Numero de paginas escritas: %d \n",n_written);
+  // printf("Arquivo de entrada: %s\n", argv[2]);
+  // printf("Tamanho da memoria fisica: %s MB\n", argv[4]);
+  // printf("Tamanho das paginas: %s KB\n", argv[3]);
+  // printf("Algoritmo de substituicao: %s \n", argv[1]);
+  // printf("Numero de page faults: %d \n",n_page_faults);
+  // printf("Numero de paginas escritas: %d \n",n_written);
 
   fclose(arq);
   free(pages);
