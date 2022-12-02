@@ -9,7 +9,6 @@ int main(int argc, char * argv[])
   int n_written = 0;
   int n_page_faults = 0;
   int index_to_overwrite;
-  int alg_type = -1; // -1 -> invalido, 0 -> LRU, 1 -> NRU
   Page *pages;
   int pages_current_size = 0;
   int *page_ids;
@@ -24,23 +23,7 @@ int main(int argc, char * argv[])
     exit(0);
   }
 
-  if (strcmp(argv[1], "LRU") == 0)
-  {
-    alg_type = 0;
-  }
-
-  if (strcmp(argv[1], "NRU") == 0)
-  {
-    alg_type = 1;
-  }
-  
-  if (alg_type == -1)
-  {
-    perror("Algoritmo invalido, apenas LRU e NRU sao validos");
-    exit(1);
-  }
-  
-  arq = fopen(argv[2], "r");
+  arq = fopen(argv[1], "r");
   
   if (arq == NULL)
   {
@@ -48,13 +31,13 @@ int main(int argc, char * argv[])
     exit(2);
   }
   
-  if (8 > atoi(argv[3]) || atoi(argv[3]) > 32)
+  if (8 > atoi(argv[2]) || atoi(argv[2]) > 32)
   {
     perror("tamanho de pagina invalido, deve ser entre 8 e 32");
     exit(3);
   }
 
-  if (1 > atoi(argv[4]) || atoi(argv[4]) > 16)
+  if (1 > atoi(argv[3]) || atoi(argv[3]) > 16)
   {
     perror("tamanho de memoria fisica invalido, deve ser entre 1 e 16");
     exit(4);
@@ -82,19 +65,11 @@ int main(int argc, char * argv[])
       {  
         if(pages_current_size >= n_pages)
         {
-          if (alg_type == 0)
-          {
-            index_to_overwrite = lru(pages,page_id,n_pages);
-            set_page(pages,index_to_overwrite,page_id,time, rw);
-            page_ids[pages_current_size] = index_to_overwrite;
-          }
-          else if(alg_type == 1)
-          {
-            index_to_overwrite = nru(pages,page_ids,n_pages);
-            set_page(pages,index_to_overwrite,page_id,time, rw);
-            page_ids[pages_current_size] = index_to_overwrite;
-          }
-
+          // ######Chamada pode estar errada, verificar dps#######
+          index_to_overwrite = opt(pages,page_id,n_pages);
+          set_page(pages,index_to_overwrite,page_id,time, rw);
+          page_ids[pages_current_size] = index_to_overwrite;
+          
           n_written++;
       	} 
       	else 
